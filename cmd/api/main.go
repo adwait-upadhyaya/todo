@@ -57,6 +57,52 @@ func handleTodos(w http.ResponseWriter, r *http.Request) {
 		createTodo(w, r)
 	case "DELETE":
 		deleteTodo(w, r)
+	case "PUT":
+		updateTodo(w, r)
+	}
+}
+
+func updateTodo(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	id := params.Get("id")
+	response := struct {
+		Message string
+	}{
+		Message: "Updated succesfully",
+	}
+
+	update := bson.D{{"$set", bson.D{{"completed", true}}}}
+
+	if id != "" {
+		fmt.Println("inside here")
+		objectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			http.Error(w, "Invalid ID format", http.StatusBadRequest)
+			return
+		}
+		filter := bson.D{{"_id", objectId}}
+		result, err := todoCollection.UpdateOne(context.TODO(), filter, update)
+		fmt.Println(result)
+		if err != nil {
+			http.Error(w, "Error Updating Todo", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	} else {
+		// update all logic here
+		filter := bson.D{}
+		_, err := todoCollection.UpdateMany(context.TODO(), filter, update)
+
+		if err != nil {
+			http.Error(w, "Error Updating todo", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+
 	}
 }
 
