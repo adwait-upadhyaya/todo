@@ -2,22 +2,26 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type todo struct {
-	Id        primitive.ObjectID
-	Title     string
-	Completed bool
+	Id        primitive.ObjectID `bson:"_id,omitempty"`
+	Title     string             `bson:"title"`
+	Completed bool               `bson:"completed"`
 }
+
+var todoCollection *mongo.Collection
 
 func connectDB() {
 	envErr := godotenv.Load(".env")
@@ -39,15 +43,27 @@ func connectDB() {
 	if err != nil {
 		log.Fatal(err)
 	} else {
+		todoCollection = client.Database("lf").Collection("todo")
 		fmt.Println("Connected to mongoDB!!!")
 	}
 
 }
 
 func getTodos(w http.ResponseWriter, r *http.Request) {
+	cursor, err := todoCollection.Find(context.Background(), bson.M{})
+	if err != nil {
+		http.Error(w, "Error Fetching Todos", http.StatusInternalServerError)
+		return
+	}
 
+	var todos []todo
+
+	if err = cursor.All(context.Background(), &todos); err != nil {
+		panic(err)
+	}
+
+	json.NewEncoder(w).Encode(todos)
 	w.WriteHeader(http.StatusOK)
-
 }
 
 func main() {
@@ -55,4 +71,5 @@ func main() {
 
 	http.HandleFunc("/todos", getTodos)
 	log.Fatal(http.ListenAndServe(":8000", nil))
+
 }
