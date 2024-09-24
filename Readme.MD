@@ -37,7 +37,7 @@ A simple Todo application built using Go, demonstrating basic CRUD operations su
    ```
 
 4. **Access the app**:
-   Open your browser and navigate to http://localhost:8080.
+   Open your browser and navigate to http://localhost:8000.
 
 ## Usage
 
