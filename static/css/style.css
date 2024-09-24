@@ -26,9 +26,12 @@ h1 {
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.todo-item.completed {
+.completed {
     text-decoration: line-through;
     color: grey;
+}
+.actions {
+    display: flex;
 }
 .actions button {
     padding: 5px 10px;

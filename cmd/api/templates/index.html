@@ -5,57 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo List</title>
     <link rel="stylesheet" href="/static/css/style.css">
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+             body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
             margin: 0;
             padding: 0;
         }
+
+        /* Main Container */
         .container {
-            width: 80%;
-            margin: 0 auto;
-            padding-top: 50px;
+            width: 90%;
+
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
         }
+
+        /* Heading */
         h1 {
             text-align: center;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
         }
+
+        /* Add Todo Form */
+        .add-todo {
+            width: 60%;
+            margin: auto;
+
+        }
+
+        .add-todo input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .add-todo button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-todo button:hover {
+            background-color: #2980b9;
+        }
+
         .todo-list {
             list-style-type: none;
             padding: 0;
         }
+
         .todo-item {
             background-color: #fff;
-            margin-bottom: 10px;
             padding: 15px;
-            border-radius: 5px;
+            margin-bottom: 10px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
         }
-      .completed {
+
+        .todo-text {
+            font-size: 1.2rem;
+        }
+
+        .completed {
             text-decoration: line-through;
-            color: grey;
+            color: #7f8c8d;
         }
+
         .actions {
             display: flex;
         }
+
         .actions button {
-            padding: 5px 10px;
+
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
             margin-left: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
         }
-        .add-todo {
-            display: flex;
-            justify-content: center;
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .complete-btn {
+            background-color: #2ecc71;
+        }
+
+        .complete-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .mark-all {
+            text-align: center;
             margin-top: 20px;
         }
-        .add-todo input {
-            padding: 10px;
-            width: 300px;
+
+        #mark-all-btn {
+            padding: 10px 20px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .add-todo button {
-            padding: 10px;
+
+        #mark-all-btn:hover {
+            background-color: #e67e22;
         }
     </style>
 </head>
@@ -78,7 +162,7 @@
                 <span class="todo-text {{ if .Completed }}completed{{ end }}">{{ .Title }}</span>
                 <div class="actions">
                     {{ if not .Completed }}
-                    <button class="complete-btn" data-id="{{ .ID.Hex }}">&#x2713;</button>
+                    <button class="complete-btn" data-id="{{ .ID.Hex }}">Mark as Done</button>
                     {{ end }}
                     <button class="delete-btn" data-id="{{ .ID.Hex }}">Delete</button>
                 </div>
@@ -87,7 +171,6 @@
             <li>No todos yet. Add one below!</li>
             {{ end }}
         </ul>
-
 
         <div class="mark-all">
             <button id="mark-all-btn">Mark All as Complete</button>
@@ -121,7 +204,6 @@
                 alert('An error occurred. Please check the console for details.');
             }
         });
-
 
         document.querySelectorAll('.complete-btn').forEach(button => {
             button.addEventListener('click', async function() {
@@ -174,8 +256,6 @@
             });
         });
 
-
-        // Mark all as complete
         document.getElementById('mark-all-btn').addEventListener('click', async function() {
             try {
                 const response = await fetch('/todos', {

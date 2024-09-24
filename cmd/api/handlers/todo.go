@@ -20,7 +20,7 @@ func RenderTodos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("cmd/api/templates/index.gohtml"))
+	tmpl := template.Must(template.ParseFiles("cmd/api/templates/index.html"))
 
 	tmpl.Execute(w, struct {
 		Todos []models.Todo
