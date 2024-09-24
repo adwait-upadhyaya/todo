@@ -8,12 +8,12 @@ import (
 )
 
 func main() {
-	// Initialize the database connection
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	config.ConnectDB()
 
-	// Register routes
 	router := routes.RegisterRoutes()
 
-	// Start the server
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

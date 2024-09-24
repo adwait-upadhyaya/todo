@@ -6,12 +6,14 @@ import (
 )
 
 func RegisterRoutes() *http.ServeMux {
+
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", handlers.RenderTodos)
 	mux.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			handlers.GetTodos(w, r)
+			handlers.GetTodos()
 		case http.MethodPost:
 			handlers.CreateTodo(w, r)
 		case http.MethodPut:

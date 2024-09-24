@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 50px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .todo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .todo-item {
+            background-color: #fff;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      .completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+        .actions {
+            display: flex;
+        }
+        .actions button {
+            padding: 5px 10px;
+            margin-left: 10px;
+        }
+        .add-todo {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .add-todo input {
+            padding: 10px;
+            width: 300px;
+        }
+        .add-todo button {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+
+        <!-- Form to add new todo -->
+        <div class="add-todo">
+            <form id="add-todo-form">
+                <input type="text" id="new-todo-description" placeholder="Enter a new todo..." required>
+                <button type="submit">Add Todo</button>
+            </form>
+        </div>
+
+        <!-- List of Todos -->
+        <ul class="todo-list">
+            {{ range .Todos }}
+            <li class="todo-item" data-id="{{ .ID.Hex }}">
+                <span class="todo-text {{ if .Completed }}completed{{ end }}">{{ .Title }}</span>
+                <div class="actions">
+                    {{ if not .Completed }}
+                    <button class="complete-btn" data-id="{{ .ID.Hex }}">&#x2713;</button>
+                    {{ end }}
+                    <button class="delete-btn" data-id="{{ .ID.Hex }}">Delete</button>
+                </div>
+            </li>
+            {{ else }}
+            <li>No todos yet. Add one below!</li>
+            {{ end }}
+        </ul>
+
+
+        <div class="mark-all">
+            <button id="mark-all-btn">Mark All as Complete</button>
+        </div>
+    </div>
+
+    <script>
+
+        document.getElementById('add-todo-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const description = document.getElementById('new-todo-description').value;
+
+            try {
+                const response = await fetch('/todos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title: description })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const errorData = await response.text();
+                    console.error('Failed to add todo:', errorData);
+                    alert('Failed to add todo. Please check the console for details.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please check the console for details.');
+            }
+        });
+
+
+        document.querySelectorAll('.complete-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const id = this.getAttribute('data-id');
+
+                try {
+                    const response = await fetch('/todos?id='+id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: id, completed: true })
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const errorData = await response.text();
+                        console.error('Failed to mark as complete:', errorData);
+                        alert('Failed to mark as complete. Please check the console for details.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please check the console for details.');
+                }
+            });
+        });
+
+
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const id = this.getAttribute('data-id');
+
+                try {
+                    const response = await fetch('/todos?id=' + id, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const errorData = await response.text();
+                        console.error('Failed to delete todo:', errorData);
+                        alert('Failed to delete todo. Please check the console for details.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please check the console for details.');
+                }
+            });
+        });
+
+
+        // Mark all as complete
+        document.getElementById('mark-all-btn').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/todos', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ completed: true })
+                });
+
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const errorData = await response.text();
+                    console.error('Failed to mark all as complete:', errorData);
+                    alert('Failed to mark all as complete. Please check the console for details.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please check the console for details.');
+            }
+        });
+    </script>
+</body>
+</html>
